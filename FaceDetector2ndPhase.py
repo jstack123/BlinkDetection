@@ -22,7 +22,10 @@ detecting = False
 open_eyes = True
 label_font = ("Arial", 30, 'bold')
 status_font = ("Arial", 20, 'italic')
+normal_font = ("Arial", 20)
 time_value = 5
+min_normal = 1.5
+max_normal = 0.45
 
 window = tk.Tk()
 
@@ -32,6 +35,10 @@ blink_var = tk.StringVar()
 blink_var.set("Blinks: 0")
 status_var = tk.StringVar()
 status_var.set("STATUS: ")
+normal_var = tk.StringVar()
+normal_var.set("Normal Blinking Rate: " + str(min_normal) + "--" + str(max_normal) + " blinks/sec")
+compare_var = tk.StringVar()
+compare_var.set("Compared to Normal: ")
 
 def detection_thread():
     global blink_var
@@ -133,6 +140,7 @@ def check_blinking_status():
     print(new_blink_count)
     avg = float(new_blink_count/time_value)
     status = ""
+    statusNorm = ""
     print(avg, "AVG")
     if new_blink_count > previous_blink_count:
         status = "BLINKING MORE -> AVG (Blinks/5s): " + str(avg)
@@ -143,7 +151,14 @@ def check_blinking_status():
     else:
         status = "SAME BLINKING -> AVG (Blinks/5s): " + str(avg)
         print("SAME BLINKING")
+    if new_blink_count < min_normal:
+        statusNorm = "Slower blink rate than normal --> Attempt to blink more often!"
+    elif new_blink_count > max_normal:
+        statusNorm = "Faster blink rate than normal --> Possibly take a break from computer!"
+    else:
+        statusNorm = "Perfect Blinking!!"
     status_var.set(status)
+    compare_var.set(statusNorm)
     previous_blink_count = new_blink_count
     new_blink_count = 0
 
@@ -154,13 +169,16 @@ reset_button = tk.Button(window, text="Reset", width = 20, height=10, command = 
 timer_label = tk.Label(window, textvariable = timer_var, width = 20, height=2, font = label_font)
 blink_label = tk.Label(window, textvariable = blink_var, width = 25, height=2, font = label_font)
 status_label = tk.Label(window, textvariable = status_var, width=40, height=2, font = status_font)
+normal_rate_label = tk.Label(window, textvariable = normal_var, width=40, height=2, font = normal_font)
+compare_label = tk.Label(window, textvariable = compare_var, width=40, height=2, font = status_font)
 start_button.grid(row=0,column=0)
 stop_button.grid(row=0, column=1)
 reset_button.grid(row=0, column=2)
 timer_label.grid(row=1, column=0, columnspan=3)
 blink_label.grid(row=2, column=0, columnspan=3)
 status_label.grid(row=3, column=0, columnspan=3)
+normal_rate_label.grid(row=4, column=0, columnspan=3)
+compare_label.grid(row=5, column=0, columnspan=3)
 window.mainloop()
-
 
 print("Code Completed")
